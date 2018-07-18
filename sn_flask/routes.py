@@ -1,23 +1,13 @@
-from datetime import datetime
-from flask import Flask, render_template, url_for, flash, redirect
-from flask_sqlalchemy import SQLAlchemy
-from forms import RegistrationForm, LoginForm
-
-######################
-# TO GET SECRET_KEY #
-# import secrets
-# secrets.token_hex(16)
-#######################
-
-app = Flask(__name__)
-app.config['SECRET_KEY'] = '5791628bb0b13ce0c676dfde280ba245'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
-db = SQLAlchemy(app)
+from flask import render_template, url_for, flash, redirect
+from sn_flask import app
+from sn_flask.models import User, Post
+from sn_flask.forms import RegistrationForm, LoginForm
 
 
 #######################
 # To Create Databases #
-# from flaskblog import db, User, Post
+# from sn_flask import db
+# from sn_flask.models import User, Post
 # db.create_all()
 # user_1 = User(username = 'Sung Joon', email = 'sjp@gmail.com', password = 'password')
 # db.session.add(user_1)
@@ -42,29 +32,6 @@ db = SQLAlchemy(app)
 
 # db.drop_all()
 #######################
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(20), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    image_file = db.Column(db.String(20), nullable=False,
-                           default='default.jpg')
-    password = db.Column(db.String(60), nullable=False)
-    posts = db.relationship('Post', backref='author', lazy=True)
-
-    def __repr__(self):
-        return format("User('{self.username}', '{self.email}', '{self.image_file}')")
-
-
-class Post(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(100), nullable=False)
-    date_posted = db.Column(db.DateTime, nullable=False,
-                            default=datetime.utcnow)
-    content = db.Column(db.Text, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-
-    def __repr__(self):
-        return format("Post('{self.title}', '{self.date_posted}')")
 
 
 posts = [
@@ -80,6 +47,8 @@ posts = [
         'content': 'First Second content',
         'date_posted': 'April 21, 2018'
     }
+
+
 ]
 
 
@@ -117,7 +86,3 @@ def login():
         else:
             flash('Login was unsuccessful. Please check username and password.', 'danger')
     return render_template('login.html', title="Login", form=form)
-
-
-if __name__ == '__main__':
-    app.run(debug=True)
