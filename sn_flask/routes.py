@@ -3,7 +3,6 @@ from sn_flask import app, db, bcrypt
 from sn_flask.models import User, Post
 from sn_flask.forms import RegistrationForm, LoginForm
 from flask_login import login_user, current_user, logout_user, login_required
-
 #######################
 # To Create Passowrd #
 
@@ -38,7 +37,6 @@ from flask_login import login_user, current_user, logout_user, login_required
 
 # db.drop_all()
 #######################
-
 posts = [
     {
         'author': "Sung Joon Park",
