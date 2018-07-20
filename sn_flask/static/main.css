@@ -12,7 +12,9 @@ h5,
 h6 {
   color: #444444;
 }
-
+.right {
+  align-content: right;
+}
 .bg-steel {
   background-color: #5f788a;
 }

@@ -1,12 +1,3 @@
-import string
-import random
-import os
-from PIL import Image
-from flask import render_template, url_for, flash, redirect, request
-from sn_flask import app, db, bcrypt
-from sn_flask.models import User, Post
-from sn_flask.forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm
-from flask_login import login_user, current_user, logout_user, login_required
 #######################
 # To Create Passowrd #
 
@@ -41,33 +32,28 @@ from flask_login import login_user, current_user, logout_user, login_required
 
 # db.drop_all()
 #######################
-posts = [
-    {
-        'author': "Sung Joon Park",
-        'title': 'My First Post!',
-        'content': 'First post content',
-        'date_posted': 'April 20, 2018'
-    },
-    {
-        'author': "Crazy George",
-        'title': 'My Second Post!',
-        'content': 'First Second content',
-        'date_posted': 'April 21, 2018'
-    }
 
-
-]
+import string
+import random
+import os
+from PIL import Image
+from flask import render_template, url_for, flash, redirect, request, abort
+from sn_flask import app, db, bcrypt
+from sn_flask.models import User, Post
+from sn_flask.forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm
+from flask_login import login_user, current_user, logout_user, login_required
 
 
 @app.route("/")
 @app.route("/home")
 def home():
+    posts = Post.query.all()
     return render_template('home.html', posts=posts)
 
 
 @app.route("/about")
 def about():
-    return render_template('about.html', title="About")
+    return render_template('about.html', title='About')
 
 
 @app.route("/register", methods=['GET', 'POST'])
@@ -82,16 +68,12 @@ def register():
                     email=form.email.data, password=hashed_password)
         db.session.add(user)
         db.session.commit()
-        flash('Your account has been created! You are now able to log in.', 'success')
+        flash('Your account has been created! You are now able to log in', 'success')
         return redirect(url_for('login'))
-    else:
-        flash(format(
-            'Account registration for {form.username.data} unsuccessful!'), 'danger')
-
-    return render_template('register.html', title="Register", form=form)
+    return render_template('register.html', title='Register', form=form)
 
 
-@app.route("/login", methods=["GET", 'POST'])
+@app.route("/login", methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('home'))
@@ -102,10 +84,9 @@ def login():
             login_user(user, remember=form.remember.data)
             next_page = request.args.get('next')
             return redirect(next_page) if next_page else redirect(url_for('home'))
-            # ternary conditional
         else:
-            flash('Login was unsuccessful. Please check email and password.', 'danger')
-    return render_template('login.html', title="Login", form=form)
+            flash('Login Unsuccessful. Please check email and password', 'danger')
+    return render_template('login.html', title='Login', form=form)
 
 
 @app.route("/logout")
@@ -114,27 +95,22 @@ def logout():
     return redirect(url_for('home'))
 
 
-def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
-    return ''.join(random.choice(chars) for _ in range(size))
-
-
 def save_picture(form_picture):
-
-    random_hex = id_generator(20)
-    print(random_hex)
-
+    random_hex = secrets.token_hex(8)
     _, f_ext = os.path.splitext(form_picture.filename)
     picture_fn = random_hex + f_ext
     picture_path = os.path.join(
         app.root_path, 'static/profile_pics', picture_fn)
+
     output_size = (125, 125)
     i = Image.open(form_picture)
     i.thumbnail(output_size)
     i.save(picture_path)
+
     return picture_fn
 
 
-@app.route("/account", methods=["GET", 'POST'])
+@app.route("/account", methods=['GET', 'POST'])
 @login_required
 def account():
     form = UpdateAccountForm()
@@ -151,11 +127,12 @@ def account():
         form.username.data = current_user.username
         form.email.data = current_user.email
     image_file = url_for(
-        'static', filename='profile_pics/'+current_user.image_file)
-    return render_template('account.html', title='Account', image_file=image_file, form=form)
+        'static', filename='profile_pics/' + current_user.image_file)
+    return render_template('account.html', title='Account',
+                           image_file=image_file, form=form)
 
 
-@app.route("/post/new", methods=["GET", 'POST'])
+@app.route("/post/new", methods=['GET', 'POST'])
 @login_required
 def new_post():
     form = PostForm()
@@ -166,4 +143,43 @@ def new_post():
         db.session.commit()
         flash('Your post has been created!', 'success')
         return redirect(url_for('home'))
-    return render_template('create_post.html', title='New Post', form=form)
+    return render_template('create_post.html', title='New Post',
+                           form=form, legend='New Post')
+
+
+@app.route("/post/<int:post_id>")
+def post(post_id):
+    post = Post.query.get_or_404(post_id)
+    return render_template('post.html', title=post.title, post=post)
+
+
+@app.route("/post/<int:post_id>/update", methods=['GET', 'POST'])
+@login_required
+def update_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    if post.author != current_user:
+        abort(403)
+    form = PostForm()
+    if form.validate_on_submit():
+        post.title = form.title.data
+        post.content = form.content.data
+        db.session.commit()
+        flash('Your post has been updated!', 'success')
+        return redirect(url_for('post', post_id=post.id))
+    elif request.method == 'GET':
+        form.title.data = post.title
+        form.content.data = post.content
+    return render_template('create_post.html', title='Update Post',
+                           form=form, legend='Update Post')
+
+
+@app.route("/post/<int:post_id>/delete", methods=['POST'])
+@login_required
+def delete_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    if post.author != current_user:
+        abort(403)
+    db.session.delete(post)
+    db.session.commit()
+    flash('Your post has been deleted!', 'success')
+    return redirect(url_for('home'))
