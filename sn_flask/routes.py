@@ -73,9 +73,9 @@ def home():
     return render_template('home.html', posts=posts)
 
 
-@app.route("/about")
-def about():
-    return render_template('about.html', title='About')
+@app.route("/contact")
+def contact():
+    return render_template('contacts.html', title='Contact')
 
 
 @app.route("/register", methods=['GET', 'POST'])

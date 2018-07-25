@@ -18,6 +18,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
     <script src="main.js"></script>
+    <!--Icons-->
 
 </head>
 
@@ -34,7 +35,6 @@
                 <div class="collapse navbar-collapse" id="navbarToggle">
                     <div class="navbar-nav mr-auto">
                         <a class="nav-item nav-link" href="{{ url_for('home') }}">Home</a>
-                        <a class="nav-item nav-link" href="{{ url_for('about') }}">About</a>
                     </div>
                     <!-- Navbar Right Side -->
                     <div class="navbar-nav">
@@ -76,6 +76,12 @@
             </div>
         </div>
     </main>
+    <!--Bottom Bar-->
+    <nav class="navbar navbar-expand-md bg-steel fixed-bottom">
+        <center>
+            <a class="nav-item nav-link" href="{{ url_for('contact') }}">Contact</a>
+        </center>
+    </nav>
     <!--Bootstrap Javascript Files-->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
         crossorigin="anonymous">
