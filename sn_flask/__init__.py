@@ -23,8 +23,7 @@ app.config['MAIL_USE_TLS'] = True
 
 app.config['MAIL_USERNAME'] = os.environ.get('EMAIL_USER')
 app.config['MAIL_PASSWORD'] = os.environ.get('EMAIL_PASS')
-# app.config['MAIL_USERNAME'] = "mandrew1136@gmail.com"
-# app.config['MAIL_PASSWORD'] = "Igbthjr4e."
+
 mail = Mail(app)
 
 from sn_flask import routes
