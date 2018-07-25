@@ -63,8 +63,6 @@ from sn_flask.forms import (RegistrationForm, LoginForm,
 from flask_login import login_user, current_user, logout_user, login_required
 from flask_mail import Message
 
-errors = Blueprint('errors', __name__)
-
 
 @app.route("/")
 @app.route("/home")
@@ -265,16 +263,19 @@ def reset_token(token):
     return render_template('reset_token.html', title='Reset Password', form=form)
 
 
-@errors.app_errorhandler(404)
-def error_404(error):
-    return render_template('errors/404.html'), 404
+# errors = Blueprint('errors', __name__)
 
 
-@errors.app_errorhandler(403)
-def error_403(error):
-    return render_template('errors/403.html'), 403
+# @errors.app_errorhandler(404)
+# def error_404(error):
+#     return render_template('errors/404.html'), 404
 
 
-@errors.app_errorhandler(500)
-def error_500(error):
-    return render_template('errors/500.html'), 500
+# @errors.app_errorhandler(403)
+# def error_403(error):
+#     return render_template('errors/403.html'), 403
+
+
+# @errors.app_errorhandler(500)
+# def error_500(error):
+#     return render_template('errors/500.html'), 500
