@@ -55,13 +55,15 @@ import string
 import random
 import os
 from PIL import Image
-from flask import render_template, url_for, flash, redirect, request, abort
+from flask import render_template, url_for, flash, redirect, request, abort, Blueprint
 from sn_flask import app, db, bcrypt, mail
 from sn_flask.models import User, Post
 from sn_flask.forms import (RegistrationForm, LoginForm,
                             UpdateAccountForm, PostForm, RequestResetForm, ResetPasswordForm)
 from flask_login import login_user, current_user, logout_user, login_required
 from flask_mail import Message
+
+errors = Blueprint('errors', __name__)
 
 
 @app.route("/")
@@ -261,3 +263,18 @@ def reset_token(token):
         flash('Your password has been updated! You are now able to log in', 'success')
         return redirect(url_for('login'))
     return render_template('reset_token.html', title='Reset Password', form=form)
+
+
+@errors.app_errorhandler(404)
+def error_404(error):
+    return render_template('errors/404.html'), 404
+
+
+@errors.app_errorhandler(403)
+def error_403(error):
+    return render_template('errors/403.html'), 403
+
+
+@errors.app_errorhandler(500)
+def error_500(error):
+    return render_template('errors/500.html'), 500
