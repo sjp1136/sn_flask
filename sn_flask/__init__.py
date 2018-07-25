@@ -21,9 +21,6 @@ app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 
-# os.environ['EMAIL_USER'] = 'sp3bk@virginia.edu'
-# os.environ['EMAIL_PASS'] = '0o0o0o'
-
 app.config['MAIL_USERNAME'] = os.environ.get('EMAIL_USER')
 app.config['MAIL_PASSWORD'] = os.environ.get('EMAIL_PASS')
 # app.config['MAIL_USERNAME'] = "mandrew1136@gmail.com"
