@@ -1,0 +1,11 @@
+.image {
+  height: 50%;
+  width: 50%;
+}
+.image_logo {
+  height: 5%;
+  width: 5%;
+}
+.flex {
+  display: flex;
+}

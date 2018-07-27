@@ -63,7 +63,30 @@ from sn_flask.forms import (RegistrationForm, LoginForm,
 from flask_login import login_user, current_user, logout_user, login_required
 from flask_mail import Message
 
+import requests
 
+# BrainTree
+from os.path import join, dirname
+from dotenv import load_dotenv
+import braintree
+from sn_flask import generate_client_token, transact, find_transaction
+
+dotenv_path = join(dirname(__file__), '.env')
+load_dotenv(dotenv_path)
+app.secret_key = os.environ.get('APP_SECRET_KEY')
+
+TRANSACTION_SUCCESS_STATUSES = [
+    braintree.Transaction.Status.Authorized,
+    braintree.Transaction.Status.Authorizing,
+    braintree.Transaction.Status.Settled,
+    braintree.Transaction.Status.SettlementConfirmed,
+    braintree.Transaction.Status.SettlementPending,
+    braintree.Transaction.Status.Settling,
+    braintree.Transaction.Status.SubmittedForSettlement
+]
+
+
+# Webpages
 @app.route("/")
 @app.route("/home")
 def home():
@@ -263,19 +286,53 @@ def reset_token(token):
     return render_template('reset_token.html', title='Reset Password', form=form)
 
 
-# errors = Blueprint('errors', __name__)
+# BrainTree
 
 
-# @errors.app_errorhandler(404)
-# def error_404(error):
-#     return render_template('errors/404.html'), 404
+@app.route('/checkouts/new', methods=['GET'])
+def new_checkout():
+    if current_user.is_authenticated:
+        client_token = generate_client_token()
+        return render_template('checkouts/new.html', client_token=client_token)
+    else:
+        flash('Please log in to donate.', 'success')
+        return redirect(url_for('login'))
 
 
-# @errors.app_errorhandler(403)
-# def error_403(error):
-#     return render_template('errors/403.html'), 403
+@app.route('/checkouts/<transaction_id>', methods=['GET'])
+@login_required
+def show_checkout(transaction_id):
+    transaction = find_transaction(transaction_id)
+    result = {}
+    if transaction.status in TRANSACTION_SUCCESS_STATUSES:
+        result = {
+            'header': 'Transaction Success!',
+            'icon': 'success',
+            'message': 'Your transaction has been successfully processed.'
+        }
+    else:
+        result = {
+            'header': 'Transaction Failed',
+            'icon': 'fail',
+            'message': 'Your transaction has a status of ' + transaction.status + '.'
+        }
+
+    return render_template('checkouts/show.html', transaction=transaction, result=result)
 
 
-# @errors.app_errorhandler(500)
-# def error_500(error):
-#     return render_template('errors/500.html'), 500
+@app.route('/checkouts', methods=['POST'])
+def create_checkout():
+    result = transact({
+        'amount': request.form['amount'],
+        'payment_method_nonce': request.form['payment_method_nonce'],
+        'options': {
+            "submit_for_settlement": True
+        }
+    })
+
+    if result.is_success or result.transaction:
+        return redirect(url_for('show_checkout', transaction_id=result.transaction.id))
+    else:
+        for x in result.errors.deep_errors:
+            flash('Error: %s: %s' % (x.code, x.message))
+        return redirect(url_for('new_checkout'))

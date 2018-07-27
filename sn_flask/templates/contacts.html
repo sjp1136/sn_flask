@@ -1,16 +1,19 @@
 {% extends "layout.html" %} {% block content %}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='side.css') }}">
 <article class="media content-section">
     <div class="media-body">
 
         <h2>
-            <a class="article-title">Contacts:</a>
+            <a class="media article-title">Developer Contacts:</a>
         </h2>
-        <div>
-            <a href="https://github.com/sp3bk">
-                <img className="icon" src="https://image.flaticon.com/icons/svg/25/25231.svg" />
+        <div class='media'>
+            <a class='media image' href="https://github.com/sp3bk">
+                <img class="image" src="/static/images/github.png" onmouseover="src='/static/images/github_over.png'" onmouseout="src='/static/images/github.png'"
+                />
             </a>
-            <a href="https://www.linkedin.com/in/sung-joon-park/">
-                <img className="icon" src="http://icons.iconarchive.com/icons/sicons/basic-round-social/256/linkedin-icon.png" />
+            <a class='media image' href="https://www.linkedin.com/in/sung-joon-park/">
+                <img class="image" src="/static/images/linkedin.png" onmouseover="src='/static/images/linkedin_over.png'" onmouseout="src='/static/images/linkedin.png'"
+                />
             </a>
         </div>
     </div>
