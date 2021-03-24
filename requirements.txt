@@ -193,7 +193,7 @@ queuelib==1.5.0
 request==1.0.2
 requests==2.19.1
 Rhino==0.0.5
-rsa==3.4.2
+rsa==4.1
 scandir==1.7
 Scrapy==1.5.1
 scrapy-splash==0.7.2
