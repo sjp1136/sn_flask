@@ -187,7 +187,7 @@ pyttsx==1.1
 pytube==9.2.2
 PyTweening==1.0.3
 pytz==2018.4
-PyYAML==3.13
+PyYAML==5.4
 query-string==1.0.2
 queuelib==1.5.0
 request==1.0.2
